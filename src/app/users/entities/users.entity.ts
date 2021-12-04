@@ -4,6 +4,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -11,6 +12,7 @@ import {
 import * as bcrypt from 'bcrypt';
 import { Exclude } from 'class-transformer';
 import { UserProfilesEntity } from './user-profiles.entity';
+import { PostsEntity } from '../../posts/entities/posts.entity';
 
 @Entity({ name: 'users' })
 export class UsersEntity {
@@ -44,6 +46,9 @@ export class UsersEntity {
 
   @OneToOne(() => UserProfilesEntity, (userProfile) => userProfile.user, { cascade: true })
   userProfiles: UserProfilesEntity;
+
+  @OneToMany(() => PostsEntity, (post) => post.user)
+  posts: PostsEntity[];
 
   @BeforeInsert()
   passwordEncrypt() {
