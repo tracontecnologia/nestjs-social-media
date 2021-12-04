@@ -4,11 +4,13 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Exclude } from 'class-transformer';
+import { UserProfilesEntity } from './user-profiles.entity';
 
 @Entity({ name: 'users' })
 export class UsersEntity {
@@ -39,6 +41,9 @@ export class UsersEntity {
 
   @DeleteDateColumn({ name: 'deleted_at' })
   deletedAt: string;
+
+  @OneToOne(() => UserProfilesEntity, (userProfile) => userProfile.user, { cascade: true })
+  userProfiles: UserProfilesEntity;
 
   @BeforeInsert()
   passwordEncrypt() {

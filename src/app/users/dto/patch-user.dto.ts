@@ -1,4 +1,6 @@
-import { IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsEmail, IsNotEmpty, IsOptional, ValidateNested } from 'class-validator';
+import { UpdateUserProfileDto } from './update-user-profile.dto';
 
 export class PatchUserDto {
   @IsOptional()
@@ -17,4 +19,9 @@ export class PatchUserDto {
   @IsNotEmpty({ message: 'Preencha seu e-mail' })
   @IsEmail({}, { message: 'Informe um e-mail válido' })
   email: string;
+
+  @IsOptional()
+  @Type(() => UpdateUserProfileDto)
+  @ValidateNested()
+  userProfiles: UpdateUserProfileDto;
 }

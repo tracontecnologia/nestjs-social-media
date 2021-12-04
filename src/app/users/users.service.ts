@@ -21,7 +21,7 @@ export class UsersService {
   }
 
   async show(id: string) {
-    return await this.usersRepository.findOneOrFail({ id });
+    return await this.usersRepository.findOneOrFail({ id }, { relations: ['userProfiles'] });
   }
 
   async update(id: string, data: UpdateUserDto) {

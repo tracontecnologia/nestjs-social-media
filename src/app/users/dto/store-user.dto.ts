@@ -1,4 +1,6 @@
-import { IsEmail, IsNotEmpty } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsEmail, IsNotEmpty, IsOptional, ValidateNested } from 'class-validator';
+import { StoreUserProfileDto } from './store-user-profile.dto';
 
 export class StoreUserDto {
   @IsNotEmpty({ message: 'Preencha seu nome' })
@@ -16,4 +18,9 @@ export class StoreUserDto {
 
   @IsNotEmpty({ message: 'Preencha sua senha' })
   password: string;
+
+  @IsOptional()
+  @Type(() => StoreUserProfileDto)
+  @ValidateNested()
+  userProfiles: StoreUserProfileDto;
 }
