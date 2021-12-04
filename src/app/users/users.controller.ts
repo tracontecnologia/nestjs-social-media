@@ -1,5 +1,6 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -10,6 +11,7 @@ import {
   Patch,
   Post,
   Put,
+  UseInterceptors,
 } from '@nestjs/common';
 import { PatchUserDto } from './dto/patch-user.dto';
 import { StoreUserDto } from './dto/store-user.dto';
@@ -21,6 +23,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
+  @UseInterceptors(ClassSerializerInterceptor)
   async index() {
     return this.usersService.index();
   }
@@ -31,8 +34,9 @@ export class UsersController {
   }
 
   @Get(':id')
+  @UseInterceptors(ClassSerializerInterceptor)
   async show(@Param('id', new ParseUUIDPipe()) id: string) {
-    return this.usersService.show(id);
+    return await this.usersService.show(id);
   }
 
   @Put(':id')
