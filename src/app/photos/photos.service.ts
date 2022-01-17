@@ -1,5 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { existsSync, mkdirSync, writeFileSync } from 'fs';
+import { join } from 'path';
 import { Repository } from 'typeorm';
 import { PhotosEntity } from './entities/photos.entity';
 
@@ -14,11 +16,21 @@ export class PhotosService {
     return await this.photosRepository.find({ postId });
   }
 
-  async store(postId: string) {
-    const photoUrl = Math.random() + '.png';
+  async store(postId: string, files: Express.Multer.File[]) {
+    const uploadDir = join(__dirname, '..', '..', '..', 'client', 'posts', postId);
+    if (!existsSync(uploadDir)) {
+      mkdirSync(uploadDir, { recursive: true });
+    }
 
-    const photo = this.photosRepository.create({ postId, photoUrl });
-    return await this.photosRepository.save(photo);
+    const photos = files.map((file) => {
+      const fileName = `${Date.now()}-${file.originalname}`;
+      const fileDir = `${uploadDir}/${fileName}`;
+      writeFileSync(fileDir, file.buffer);
+
+      return this.photosRepository.create({ postId, photoUrl: `/posts/${postId}/${fileName}` });
+    });
+
+    return await this.photosRepository.save(photos);
   }
 
   async destroy(id: string) {

@@ -10,7 +10,10 @@ import {
   Post,
   Put,
   Query,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { PhotosService } from '../photos/photos.service';
 import { IndexPostDto } from './dto/index-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -42,7 +45,8 @@ export class PostsController {
   }
 
   @Post(':id/photos')
-  async storePhotos(@Param('id', new ParseUUIDPipe()) id: string) {
-    return await this.photosService.store(id);
+  @UseInterceptors(FilesInterceptor('files', 6, { limits: { fileSize: 5000000 } }))
+  async storePhotos(@Param('id', new ParseUUIDPipe()) id: string, @UploadedFiles() files: Express.Multer.File[]) {
+    return await this.photosService.store(id, files);
   }
 }
