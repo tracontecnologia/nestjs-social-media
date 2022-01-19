@@ -4,6 +4,7 @@ import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { Repository } from 'typeorm';
 import { PhotosEntity } from './entities/photos.entity';
+import * as sharp from 'sharp';
 
 @Injectable()
 export class PhotosService {
@@ -22,13 +23,19 @@ export class PhotosService {
       mkdirSync(uploadDir, { recursive: true });
     }
 
-    const photos = files.map((file) => {
-      const fileName = `${Date.now()}-${file.originalname}`;
-      const fileDir = `${uploadDir}/${fileName}`;
-      writeFileSync(fileDir, file.buffer);
+    const photos = await Promise.all(
+      files.map(async (file) => {
+        const fileName = `${Date.now()}-${file.originalname}`;
+        const fileDir = `${uploadDir}/${fileName}`;
+        const fileBuffer = await sharp(file.buffer)
+          .resize(400, 400, { fit: 'contain', background: '#ffffff' })
+          .toBuffer();
 
-      return this.photosRepository.create({ postId, photoUrl: `/posts/${postId}/${fileName}` });
-    });
+        writeFileSync(fileDir, fileBuffer);
+
+        return this.photosRepository.create({ postId, photoUrl: `/posts/${postId}/${fileName}` });
+      }),
+    );
 
     return await this.photosRepository.save(photos);
   }
