@@ -16,6 +16,7 @@ import {
 import { StorePostDto } from '../posts/dto/store-post.dto';
 import { PostsService } from '../posts/posts.service';
 import { PatchUserDto } from './dto/patch-user.dto';
+import { StoreFollowerDto } from './dto/store-follower.dto';
 import { StoreUserDto } from './dto/store-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
@@ -65,5 +66,15 @@ export class UsersController {
   @Get(':id/posts')
   async indexPosts(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.postsService.index({ userId: id });
+  }
+
+  @Get(':id/followers')
+  async indexFollowers(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.usersService.indexFollowers(id);
+  }
+
+  @Post(':id/followers')
+  async storeFollowers(@Param('id', new ParseUUIDPipe()) id: string, @Body() body: StoreFollowerDto) {
+    return this.usersService.storeFollowers(id, body);
   }
 }

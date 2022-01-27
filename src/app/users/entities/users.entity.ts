@@ -4,6 +4,8 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinTable,
+  ManyToMany,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -49,6 +51,20 @@ export class UsersEntity {
 
   @OneToMany(() => PostsEntity, (post) => post.user)
   posts: PostsEntity[];
+
+  @ManyToMany(() => UsersEntity, (user) => user.followers)
+  @JoinTable({
+    name: 'followers',
+    joinColumn: {
+      name: 'user_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'follower_id',
+      referencedColumnName: 'id',
+    },
+  })
+  followers: UsersEntity[];
 
   @BeforeInsert()
   passwordEncrypt() {
