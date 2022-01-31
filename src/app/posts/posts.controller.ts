@@ -14,12 +14,14 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { ApiTags } from '@nestjs/swagger';
 import { PhotosService } from '../photos/photos.service';
 import { IndexPostDto } from './dto/index-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostsService } from './posts.service';
 
 @Controller('api/v1/posts')
+@ApiTags('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService, private readonly photosService: PhotosService) {}
 

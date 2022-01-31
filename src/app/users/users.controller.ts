@@ -13,6 +13,7 @@ import {
   Put,
   UseInterceptors,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { StorePostDto } from '../posts/dto/store-post.dto';
 import { PostsService } from '../posts/posts.service';
 import { PatchUserDto } from './dto/patch-user.dto';
@@ -22,6 +23,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 
 @Controller('api/v1/users')
+@ApiTags('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService, private readonly postsService: PostsService) {}
 
