@@ -14,7 +14,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { BadRequestResponse, NotFoundResponse } from '../../shared/swagger.shared';
 import { PhotosService } from '../photos/photos.service';
 import { PhotosResponse } from '../photos/photos.swagger';
@@ -29,6 +29,7 @@ export class PostsController {
   constructor(private readonly postsService: PostsService, private readonly photosService: PhotosService) {}
 
   @Get()
+  @ApiOperation({ summary: 'Retornar todos os posts' })
   @ApiResponse({
     type: PostIndexResponse,
     isArray: true,
@@ -46,6 +47,7 @@ export class PostsController {
   }
 
   @Put(':id')
+  @ApiOperation({ summary: 'Atualizar um post' })
   @ApiResponse({ type: PostPutResponse, status: HttpStatus.OK, description: 'Post atualizado com sucesso' })
   @ApiResponse({
     type: BadRequestResponse,
@@ -62,6 +64,7 @@ export class PostsController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Excluir um post' })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'Post excluído com sucesso' })
   @ApiResponse({
@@ -79,6 +82,7 @@ export class PostsController {
   }
 
   @Get(':id/photos')
+  @ApiOperation({ summary: 'Listar todas as fotos de um post' })
   @ApiResponse({
     type: PhotosResponse,
     isArray: true,
@@ -100,6 +104,7 @@ export class PostsController {
   }
 
   @Post(':id/photos')
+  @ApiOperation({ summary: 'Realizar o upload de novas fotos em um post' })
   @UseInterceptors(FilesInterceptor('files', 6, { limits: { fileSize: 5000000 } }))
   @ApiResponse({
     type: PhotosResponse,

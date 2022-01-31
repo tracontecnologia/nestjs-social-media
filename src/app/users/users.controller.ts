@@ -13,7 +13,7 @@ import {
   Put,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { BadRequestResponse, NotFoundResponse } from '../../shared/swagger.shared';
 import { StorePostDto } from '../posts/dto/store-post.dto';
 import { PostsService } from '../posts/posts.service';
@@ -31,6 +31,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService, private readonly postsService: PostsService) {}
 
   @Get()
+  @ApiOperation({ summary: 'Listar todos os usuários' })
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiResponse({
     type: UserResponse,
@@ -43,6 +44,7 @@ export class UsersController {
   }
 
   @Post()
+  @ApiOperation({ summary: 'Inserir um novo usuário' })
   @ApiResponse({ type: UserResponse, status: HttpStatus.CREATED, description: 'Novo usuário criado com sucesso!' })
   @ApiResponse({ type: BadRequestResponse, description: 'Informe os parâmetros de forma correta' })
   async store(@Body() body: StoreUserDto) {
@@ -50,6 +52,7 @@ export class UsersController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Buscar um usuário pelo id' })
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiResponse({ type: UserResponse, status: HttpStatus.OK, description: 'Usuário retornado com sucesso' })
   @ApiResponse({
@@ -67,6 +70,7 @@ export class UsersController {
   }
 
   @Put(':id')
+  @ApiOperation({ summary: 'Atualizar todos os campos de um usuário' })
   @ApiResponse({ type: UserResponse, status: HttpStatus.OK, description: 'Usuário atualizado com sucesso' })
   @ApiResponse({
     type: BadRequestResponse,
@@ -83,6 +87,7 @@ export class UsersController {
   }
 
   @Patch(':id')
+  @ApiOperation({ summary: 'Atualizar alguns campos de um usuário' })
   @ApiResponse({ type: UserResponse, status: HttpStatus.OK, description: 'Usuário atualizado com sucesso' })
   @ApiResponse({
     type: BadRequestResponse,
@@ -99,6 +104,7 @@ export class UsersController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Excluir um usuário' })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'Usuário excluído com sucesso' })
   @ApiResponse({
@@ -116,6 +122,7 @@ export class UsersController {
   }
 
   @Post(':id/posts')
+  @ApiOperation({ summary: 'Cadastar um novo post para um usuário' })
   @ApiResponse({ type: PostResponse, status: HttpStatus.CREATED, description: 'Post do usuário criado com sucesso!' })
   @ApiResponse({
     type: BadRequestResponse,
@@ -132,6 +139,7 @@ export class UsersController {
   }
 
   @Get(':id/posts')
+  @ApiOperation({ summary: 'Listar todos os posts de um usuário' })
   @ApiResponse({
     type: PostResponse,
     isArray: true,
@@ -148,6 +156,7 @@ export class UsersController {
   }
 
   @Get(':id/followers')
+  @ApiOperation({ summary: 'Listar todos os seguidores de um usuário' })
   @ApiResponse({
     type: UserFollowersResponse,
     status: HttpStatus.OK,
@@ -168,6 +177,7 @@ export class UsersController {
   }
 
   @Post(':id/followers')
+  @ApiOperation({ summary: 'Registar um novo seguidor para um usuário' })
   @ApiResponse({
     type: UserFollowersResponse,
     status: HttpStatus.CREATED,
