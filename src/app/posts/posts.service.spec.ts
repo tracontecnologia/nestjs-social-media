@@ -1,7 +1,9 @@
+import { BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { IndexPostDto } from './dto/index-post.dto';
+import { StorePostDto } from './dto/store-post.dto';
 import { PostsEntity } from './entities/posts.entity';
 import { PostsService } from './posts.service';
 
@@ -17,10 +19,12 @@ describe('PostsService', () => {
           provide: getRepositoryToken(PostsEntity),
           useValue: {
             createQueryBuilder: jest.fn().mockReturnThis(),
+            create: jest.fn().mockReturnThis(),
             addSelect: jest.fn().mockReturnThis(),
             leftJoin: jest.fn().mockReturnThis(),
             andWhere: jest.fn().mockReturnThis(),
             getMany: jest.fn().mockResolvedValue([]),
+            save: jest.fn().mockResolvedValue(undefined),
           },
         },
       ],
@@ -38,7 +42,7 @@ describe('PostsService', () => {
   describe('index', () => {
     it('should return a posts list', async () => {
       // Arrange
-      const options = {};
+      const options = undefined;
       const postsListMock = [
         {
           id: '1',
@@ -98,6 +102,37 @@ describe('PostsService', () => {
       const result = await postsService.index(options);
       // Assert
       expect(result).toEqual(postsListMock);
+    });
+  });
+
+  describe('store', () => {
+    it('should store a new post', async () => {
+      // Arrange
+      const userId = '1';
+      const data: StorePostDto = { description: 'test' };
+      const postMock: PostsEntity = {
+        id: '1',
+        userId: '1',
+        user: undefined,
+        description: 'test',
+        createdAt: '2022-02-26T12:00:00',
+        updatedAt: '2022-02-26T12:00:00',
+        deletedAt: '2022-02-26T12:00:00',
+      };
+      jest.spyOn(postsRepository, 'save').mockResolvedValueOnce(postMock);
+      // Act
+      const result = await postsService.store(userId, data);
+      // Assert
+      expect(result).toEqual(postMock);
+    });
+
+    it('should throw an exception', () => {
+      // Arrange
+      const userId = '1';
+      const data: StorePostDto = { description: 'test' };
+      jest.spyOn(postsRepository, 'save').mockRejectedValueOnce(new Error());
+      // Assert
+      expect(postsService.store(userId, data)).rejects.toThrowError(BadRequestException);
     });
   });
 });

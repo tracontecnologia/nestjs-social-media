@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { IndexPostDto } from './dto/index-post.dto';
@@ -13,7 +13,7 @@ export class PostsService {
     private readonly postsRepository: Repository<PostsEntity>,
   ) {}
 
-  async index(options: IndexPostDto) {
+  async index(options?: IndexPostDto) {
     const posts = this.postsRepository
       .createQueryBuilder('posts')
       .addSelect(['user.username'])
@@ -27,7 +27,11 @@ export class PostsService {
   }
 
   async store(userId: string, data: StorePostDto) {
-    return await this.postsRepository.save(this.postsRepository.create({ userId, ...data }));
+    try {
+      return await this.postsRepository.save(this.postsRepository.create({ userId, ...data }));
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
   async update(id: string, data: UpdatePostDto) {
