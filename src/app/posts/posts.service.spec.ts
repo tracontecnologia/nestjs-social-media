@@ -1,9 +1,10 @@
-import { BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { IndexPostDto } from './dto/index-post.dto';
 import { StorePostDto } from './dto/store-post.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
 import { PostsEntity } from './entities/posts.entity';
 import { PostsService } from './posts.service';
 
@@ -25,6 +26,9 @@ describe('PostsService', () => {
             andWhere: jest.fn().mockReturnThis(),
             getMany: jest.fn().mockResolvedValue([]),
             save: jest.fn().mockResolvedValue(undefined),
+            findOneOrFail: jest.fn().mockResolvedValue(undefined),
+            merge: jest.fn().mockReturnValue(undefined),
+            softDelete: jest.fn().mockResolvedValue(undefined),
           },
         },
       ],
@@ -133,6 +137,83 @@ describe('PostsService', () => {
       jest.spyOn(postsRepository, 'save').mockRejectedValueOnce(new Error());
       // Assert
       expect(postsService.store(userId, data)).rejects.toThrowError(BadRequestException);
+    });
+  });
+
+  describe('update', () => {
+    it('should update a post with success', async () => {
+      // Arrange
+      const id = '1';
+      const data: UpdatePostDto = { description: 'updated test' };
+      const postFoundMock: PostsEntity = {
+        id: '1',
+        userId: '1',
+        user: undefined,
+        description: 'test',
+        createdAt: '2022-02-26T12:00:00',
+        updatedAt: '2022-02-26T12:00:00',
+        deletedAt: '2022-02-26T12:00:00',
+      };
+      jest.spyOn(postsRepository, 'findOneOrFail').mockResolvedValueOnce(postFoundMock);
+      const postMock: PostsEntity = {
+        id: '1',
+        userId: '1',
+        user: undefined,
+        description: 'updated test',
+        createdAt: '2022-02-26T12:00:00',
+        updatedAt: '2022-02-26T12:00:00',
+        deletedAt: '2022-02-26T12:00:00',
+      };
+      jest.spyOn(postsRepository, 'save').mockResolvedValueOnce(postMock);
+      // Act
+      const result = await postsService.update(id, data);
+      // Assert
+      expect(result).toEqual(postMock);
+    });
+
+    it('should throw an exception when post is not exists', () => {
+      // Arrange
+      const id = '1';
+      const data: UpdatePostDto = { description: 'updated test' };
+      jest.spyOn(postsRepository, 'findOneOrFail').mockRejectedValueOnce(new Error());
+      // Assert
+      expect(postsService.update(id, data)).rejects.toThrowError(NotFoundException);
+    });
+
+    it('should throw an exception when post is not updated', () => {
+      // Arrange
+      const id = '1';
+      const data: UpdatePostDto = { description: 'updated test' };
+      jest.spyOn(postsRepository, 'save').mockRejectedValueOnce(new Error());
+      // Assert
+      expect(postsService.update(id, data)).rejects.toThrowError(BadRequestException);
+    });
+  });
+
+  describe('destroy', () => {
+    it('should delete a post with success', async () => {
+      // Arrange
+      const id = '1';
+      // Act
+      const result = await postsService.destroy(id);
+      // Assert
+      expect(result).toBeUndefined();
+    });
+
+    it('should throw an exception when post is not exists', () => {
+      // Arrange
+      const id = '1';
+      jest.spyOn(postsRepository, 'findOneOrFail').mockRejectedValueOnce(new Error());
+      // Assert
+      expect(postsService.destroy(id)).rejects.toThrowError(NotFoundException);
+    });
+
+    it('should throw an exception when post is not deleted with success', () => {
+      // Arrange
+      const id = '1';
+      jest.spyOn(postsRepository, 'softDelete').mockRejectedValueOnce(new Error());
+      // Assert
+      expect(postsService.destroy(id)).rejects.toThrowError(BadRequestException);
     });
   });
 });

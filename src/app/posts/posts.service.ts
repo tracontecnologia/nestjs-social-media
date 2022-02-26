@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { IndexPostDto } from './dto/index-post.dto';
@@ -35,14 +35,32 @@ export class PostsService {
   }
 
   async update(id: string, data: UpdatePostDto) {
-    const post = await this.postsRepository.findOneOrFail({ id });
+    let post: PostsEntity;
+    try {
+      post = await this.postsRepository.findOneOrFail({ id });
+    } catch (error) {
+      throw new NotFoundException(error.message);
+    }
 
     this.postsRepository.merge(post, data);
-    return await this.postsRepository.save(post);
+    try {
+      return await this.postsRepository.save(post);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
   async destroy(id: string) {
-    await this.postsRepository.findOneOrFail({ id });
-    await this.postsRepository.softDelete({ id });
+    try {
+      await this.postsRepository.findOneOrFail({ id });
+    } catch (error) {
+      throw new NotFoundException(error.message);
+    }
+
+    try {
+      await this.postsRepository.softDelete({ id });
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 }
