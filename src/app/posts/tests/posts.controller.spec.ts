@@ -1,12 +1,12 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { PhotosEntity } from '../photos/entities/photos.entity';
-import { PhotosService } from '../photos/photos.service';
-import { IndexPostDto } from './dto/index-post.dto';
-import { UpdatePostDto } from './dto/update-post.dto';
-import { PostsEntity } from './entities/posts.entity';
-import { PostsController } from './posts.controller';
-import { PostsService } from './posts.service';
+import { PhotosEntity } from '../../photos/entities/photos.entity';
+import { PhotosService } from '../../photos/photos.service';
+import { IndexPostDto } from '../dto/index-post.dto';
+import { UpdatePostDto } from '../dto/update-post.dto';
+import { PostsEntity } from '../entities/posts.entity';
+import { PostsController } from '../posts.controller';
+import { PostsService } from '../posts.service';
 
 describe('PostsController', () => {
   let postsController: PostsController;

@@ -2,11 +2,11 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { IndexPostDto } from './dto/index-post.dto';
-import { StorePostDto } from './dto/store-post.dto';
-import { UpdatePostDto } from './dto/update-post.dto';
-import { PostsEntity } from './entities/posts.entity';
-import { PostsService } from './posts.service';
+import { IndexPostDto } from '../dto/index-post.dto';
+import { StorePostDto } from '../dto/store-post.dto';
+import { UpdatePostDto } from '../dto/update-post.dto';
+import { PostsEntity } from '../entities/posts.entity';
+import { PostsService } from '../posts.service';
 
 describe('PostsService', () => {
   let postsService: PostsService;
