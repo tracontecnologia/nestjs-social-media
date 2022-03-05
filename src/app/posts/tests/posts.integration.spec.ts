@@ -1,7 +1,9 @@
 import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { getConnection } from 'typeorm';
+import { ConnectionHelper } from '../../../helpers/tests/connection.helper';
+import { PostTestIntegrationHelper } from '../../../helpers/tests/post-test-integration.helper';
+import { UserTestIntegrationHelper } from '../../../helpers/tests/user-test-integration.helper';
 import { PhotosEntity } from '../../photos/entities/photos.entity';
 import { PhotosModule } from '../../photos/photos.module';
 import { UserProfilesEntity } from '../../users/entities/user-profiles.entity';
@@ -13,6 +15,7 @@ import { PostsService } from '../posts.service';
 describe('PostsIntegration', () => {
   let postsController: PostsController;
   let postsService: PostsService;
+  const connectionHelper = new ConnectionHelper();
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -27,7 +30,7 @@ describe('PostsIntegration', () => {
           database: process.env.TYPEORM_DATABASE,
           entities: [PostsEntity, UsersEntity, UserProfilesEntity, PhotosEntity],
           synchronize: false,
-          logging: true,
+          logging: false,
         }),
         TypeOrmModule.forFeature([PostsEntity]),
         PhotosModule,
@@ -38,11 +41,27 @@ describe('PostsIntegration', () => {
 
     postsController = module.get<PostsController>(PostsController);
     postsService = module.get<PostsService>(PostsService);
+
+    const entityManager = connectionHelper.getEntityManager();
+    const userTestIntegrationHelper = new UserTestIntegrationHelper(entityManager);
+    const postTestIntegrationHelper = new PostTestIntegrationHelper(entityManager);
+
+    await userTestIntegrationHelper.seed();
+    const user = await userTestIntegrationHelper.findOne();
+    await postTestIntegrationHelper.seed({ userId: user.id });
+  });
+
+  afterEach(async () => {
+    const entityManager = connectionHelper.getEntityManager();
+    const userTestIntegrationHelper = new UserTestIntegrationHelper(entityManager);
+    const postTestIntegrationHelper = new PostTestIntegrationHelper(entityManager);
+
+    await postTestIntegrationHelper.cleanSeed();
+    await userTestIntegrationHelper.cleanSeed();
   });
 
   afterAll(async () => {
-    const connection = getConnection();
-    await connection.close();
+    await connectionHelper.closeCon();
   });
 
   it('should be defined', () => {
