@@ -9,7 +9,7 @@ import { PhotosModule } from './app/photos/photos.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({ envFilePath: process.env.NODE_ENV === 'test' ? '.env.test' : '.env' }),
     TypeOrmModule.forRoot({
       type: process.env.TYPEORM_CONNECTION as any,
       host: process.env.TYPEORM_HOST,
@@ -19,7 +19,8 @@ import { PhotosModule } from './app/photos/photos.module';
       database: process.env.TYPEORM_DATABASE,
       entities: [__dirname + '/**/*.entity{.js,.ts}'],
       synchronize: false,
-      logging: true,
+      logging: false,
+      keepConnectionAlive: process.env.NODE_ENV === 'test',
     }),
     UsersModule,
     PostsModule,
