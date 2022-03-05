@@ -25,6 +25,7 @@ export class UserTestIntegrationHelper extends TestIntegrationHelper {
   }
 
   async cleanSeed(): Promise<void> {
+    await this.entityManager.query(`SET FOREIGN_KEY_CHECKS=0;`);
     const userProfiles = await this.entityManager.find(UserProfilesEntity);
     await this.entityManager.remove(UserProfilesEntity, userProfiles);
 
@@ -34,5 +35,10 @@ export class UserTestIntegrationHelper extends TestIntegrationHelper {
 
   async findOne(): Promise<UsersEntity> {
     return this.entityManager.findOne(UsersEntity);
+  }
+
+  async saveNewFake(): Promise<UsersEntity> {
+    const data = this.getFakeData();
+    return this.entityManager.save(UsersEntity, data);
   }
 }

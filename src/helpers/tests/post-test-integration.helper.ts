@@ -9,6 +9,7 @@ export class PostTestIntegrationHelper extends TestIntegrationHelper {
   }
 
   async cleanSeed(): Promise<void> {
+    await this.entityManager.query(`SET FOREIGN_KEY_CHECKS=0;`);
     const posts = await this.entityManager.find(PostsEntity);
     await this.entityManager.remove(PostsEntity, posts);
   }
@@ -18,5 +19,9 @@ export class PostTestIntegrationHelper extends TestIntegrationHelper {
       userId: params.userId,
       description: faker.lorem.lines(1),
     });
+  }
+
+  async findOne(): Promise<PostsEntity> {
+    return this.entityManager.findOne(PostsEntity);
   }
 }

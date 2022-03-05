@@ -8,6 +8,8 @@ import { PhotosEntity } from '../../photos/entities/photos.entity';
 import { PhotosModule } from '../../photos/photos.module';
 import { UserProfilesEntity } from '../../users/entities/user-profiles.entity';
 import { UsersEntity } from '../../users/entities/users.entity';
+import { IndexPostDto } from '../dto/index-post.dto';
+import { UpdatePostDto } from '../dto/update-post.dto';
 import { PostsEntity } from '../entities/posts.entity';
 import { PostsController } from '../posts.controller';
 import { PostsService } from '../posts.service';
@@ -16,6 +18,8 @@ describe('PostsIntegration', () => {
   let postsController: PostsController;
   let postsService: PostsService;
   const connectionHelper = new ConnectionHelper();
+  let userTestIntegrationHelper: UserTestIntegrationHelper;
+  let postTestIntegrationHelper: PostTestIntegrationHelper;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -31,6 +35,7 @@ describe('PostsIntegration', () => {
           entities: [PostsEntity, UsersEntity, UserProfilesEntity, PhotosEntity],
           synchronize: false,
           logging: false,
+          keepConnectionAlive: true,
         }),
         TypeOrmModule.forFeature([PostsEntity]),
         PhotosModule,
@@ -43,8 +48,8 @@ describe('PostsIntegration', () => {
     postsService = module.get<PostsService>(PostsService);
 
     const entityManager = connectionHelper.getEntityManager();
-    const userTestIntegrationHelper = new UserTestIntegrationHelper(entityManager);
-    const postTestIntegrationHelper = new PostTestIntegrationHelper(entityManager);
+    userTestIntegrationHelper = new UserTestIntegrationHelper(entityManager);
+    postTestIntegrationHelper = new PostTestIntegrationHelper(entityManager);
 
     await userTestIntegrationHelper.seed();
     const user = await userTestIntegrationHelper.findOne();
@@ -53,8 +58,8 @@ describe('PostsIntegration', () => {
 
   afterEach(async () => {
     const entityManager = connectionHelper.getEntityManager();
-    const userTestIntegrationHelper = new UserTestIntegrationHelper(entityManager);
-    const postTestIntegrationHelper = new PostTestIntegrationHelper(entityManager);
+    userTestIntegrationHelper = new UserTestIntegrationHelper(entityManager);
+    postTestIntegrationHelper = new PostTestIntegrationHelper(entityManager);
 
     await postTestIntegrationHelper.cleanSeed();
     await userTestIntegrationHelper.cleanSeed();
@@ -67,5 +72,76 @@ describe('PostsIntegration', () => {
   it('should be defined', () => {
     expect(postsController).toBeDefined();
     expect(postsService).toBeDefined();
+  });
+
+  describe('index', () => {
+    it('should return a post list', async () => {
+      // Arrange
+      const query: IndexPostDto = {};
+      // Act
+      const result = await postsController.index(query);
+      // Assert
+      expect(result.length).toEqual(3);
+    });
+
+    it('should a list post by userId', async () => {
+      // Arrange
+      const { id } = await userTestIntegrationHelper.saveNewFake();
+      const query: IndexPostDto = { userId: id };
+      // Act
+      const result = await postsController.index(query);
+      // Assert
+      expect(result.length).toEqual(0);
+    });
+  });
+
+  describe('update', () => {
+    it('should update a post successfully', async () => {
+      // Arrange
+      const { id, description } = await postTestIntegrationHelper.findOne();
+      const body: UpdatePostDto = { description: 'updated post' };
+      // Act
+      const result = await postsController.update(id, body);
+      // Assert
+      expect(result.description).toEqual(body.description);
+      expect(result.description).not.toEqual(description);
+      expect(result.updatedAt).toBeDefined();
+    });
+
+    it('should throw a not found exception when post is not exists', async () => {
+      // Arrange
+      const id = '123';
+      const body: UpdatePostDto = { description: 'updated post' };
+      // Assert
+      try {
+        await postsController.update(id, body);
+      } catch (error) {
+        expect(error.response.statusCode).toEqual(404);
+        expect(error.response.error).toEqual('Not Found');
+      }
+    });
+  });
+
+  describe('destroy', () => {
+    it('should delete a post with success', async () => {
+      // Arrange
+      const { id } = await postTestIntegrationHelper.findOne();
+      // Act
+      const result = await postsController.destroy(id);
+      // Assert
+      expect(result).toBeUndefined();
+    });
+
+    it('should thrown a not found exception when post is not exists', async () => {
+      // Arrange
+      const id = '123';
+      // Assert
+      try {
+        await postsController.destroy(id);
+      } catch (error) {
+        expect(error.response.statusCode).toEqual(404);
+        expect(error.response.error).toEqual('Not Found');
+      }
+    });
   });
 });
