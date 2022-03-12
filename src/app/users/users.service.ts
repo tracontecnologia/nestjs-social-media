@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindConditions, FindOneOptions, Repository } from 'typeorm';
 import { PostsService } from '../posts/posts.service';
 import { StoreFollowerDto } from './dto/store-follower.dto';
 import { StoreUserDto } from './dto/store-user.dto';
@@ -88,5 +88,13 @@ export class UsersService {
     const follows = await this.getFollows(followerId);
     const followsIds = follows.map(({ id }) => id);
     return await this.postsService.index({ userIds: followsIds });
+  }
+
+  async findOneOrFail(conditions?: FindConditions<UsersEntity>, options?: FindOneOptions<UsersEntity>) {
+    try {
+      return this.usersRepository.findOneOrFail(conditions, options);
+    } catch (error) {
+      throw new NotFoundException(error.message);
+    }
   }
 }
