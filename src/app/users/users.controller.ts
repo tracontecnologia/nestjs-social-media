@@ -11,8 +11,10 @@ import {
   Patch,
   Post,
   Put,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { BadRequestResponse, NotFoundResponse } from '../../shared/swagger.shared';
 import { StorePostDto } from '../posts/dto/store-post.dto';
@@ -31,6 +33,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService, private readonly postsService: PostsService) {}
 
   @Get()
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Listar todos os usuários' })
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiResponse({
@@ -52,6 +55,7 @@ export class UsersController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Buscar um usuário pelo id' })
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiResponse({ type: UserResponse, status: HttpStatus.OK, description: 'Usuário retornado com sucesso' })
@@ -70,6 +74,7 @@ export class UsersController {
   }
 
   @Put(':id')
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Atualizar todos os campos de um usuário' })
   @ApiResponse({ type: UserResponse, status: HttpStatus.OK, description: 'Usuário atualizado com sucesso' })
   @ApiResponse({
@@ -87,6 +92,7 @@ export class UsersController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Atualizar alguns campos de um usuário' })
   @ApiResponse({ type: UserResponse, status: HttpStatus.OK, description: 'Usuário atualizado com sucesso' })
   @ApiResponse({
@@ -104,6 +110,7 @@ export class UsersController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Excluir um usuário' })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'Usuário excluído com sucesso' })
@@ -122,6 +129,7 @@ export class UsersController {
   }
 
   @Post(':id/posts')
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Cadastar um novo post para um usuário' })
   @ApiResponse({ type: PostResponse, status: HttpStatus.CREATED, description: 'Post do usuário criado com sucesso!' })
   @ApiResponse({
@@ -139,6 +147,7 @@ export class UsersController {
   }
 
   @Get(':id/posts')
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Listar todos os posts de um usuário' })
   @ApiResponse({
     type: PostResponse,
@@ -156,6 +165,7 @@ export class UsersController {
   }
 
   @Get(':id/followers')
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Listar todos os seguidores de um usuário' })
   @ApiResponse({
     type: UserFollowersResponse,
@@ -177,6 +187,7 @@ export class UsersController {
   }
 
   @Post(':id/followers')
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Registar um novo seguidor para um usuário' })
   @ApiResponse({
     type: UserFollowersResponse,
@@ -198,6 +209,7 @@ export class UsersController {
   }
 
   @Get(':id/follows')
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Listar todos os usuários que o usuário selecionado segue' })
   @ApiResponse({
     type: UserFollowersResponse,
@@ -219,6 +231,7 @@ export class UsersController {
   }
 
   @Get(':id/follows/posts')
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Listar todos os posts dos usuários que o usuário selecionado segue' })
   @ApiResponse({
     type: UserFollowersResponse,

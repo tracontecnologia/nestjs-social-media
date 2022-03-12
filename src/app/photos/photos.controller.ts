@@ -1,4 +1,5 @@
-import { Controller, Delete, HttpCode, HttpStatus, Param, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Delete, HttpCode, HttpStatus, Param, ParseUUIDPipe, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { NotFoundResponse } from '../../shared/swagger.shared';
 import { PhotosService } from './photos.service';
@@ -9,6 +10,7 @@ export class PhotosController {
   constructor(private readonly photosService: PhotosService) {}
 
   @Delete(':id')
+  @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Excluir uma foto' })
   @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'Foto excluída com sucesso' })
