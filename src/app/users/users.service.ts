@@ -97,4 +97,8 @@ export class UsersService {
       throw new NotFoundException(error.message);
     }
   }
+
+  async updateRefreshTokenId(userId: string, refreshTokenId: string) {
+    return await this.usersRepository.update(userId, { refreshTokenId });
+  }
 }

@@ -66,6 +66,9 @@ export class UsersEntity {
   })
   followers: UsersEntity[];
 
+  @Column({ name: 'refresh_token_id' })
+  refreshTokenId: string;
+
   @BeforeInsert()
   passwordEncrypt() {
     this.password = bcrypt.hashSync(this.password, 10);
