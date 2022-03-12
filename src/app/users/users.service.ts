@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { PostsService } from '../posts/posts.service';
 import { StoreFollowerDto } from './dto/store-follower.dto';
 import { StoreUserDto } from './dto/store-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -11,6 +12,7 @@ export class UsersService {
   constructor(
     @InjectRepository(UsersEntity)
     private readonly usersRepository: Repository<UsersEntity>,
+    private readonly postsService: PostsService,
   ) {}
 
   async index() {
@@ -80,5 +82,11 @@ export class UsersService {
       .leftJoin('users.followers', 'followers')
       .where('follower_id = :followerId', { followerId })
       .getMany();
+  }
+
+  async getFollowsPosts(followerId: string) {
+    const follows = await this.getFollows(followerId);
+    const followsIds = follows.map(({ id }) => id);
+    return await this.postsService.index({ userIds: followsIds });
   }
 }

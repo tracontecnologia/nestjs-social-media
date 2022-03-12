@@ -23,6 +23,8 @@ export class PostsService {
 
     if (options?.userId) {
       posts.andWhere('posts.userId = :userId', { userId: options.userId });
+    } else if (options?.userIds) {
+      posts.andWhere('posts.userId IN (:userIds)', { userIds: options.userIds });
     }
 
     return await posts.getMany();

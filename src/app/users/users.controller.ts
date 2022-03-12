@@ -198,7 +198,44 @@ export class UsersController {
   }
 
   @Get(':id/follows')
+  @ApiOperation({ summary: 'Listar todos os usuários que o usuário selecionado segue' })
+  @ApiResponse({
+    type: UserFollowersResponse,
+    status: HttpStatus.OK,
+    description: 'Retornar uma lista de usuários',
+  })
+  @ApiResponse({
+    type: BadRequestResponse,
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Informe os parâmetros de forma correta',
+  })
+  @ApiResponse({
+    type: NotFoundResponse,
+    status: HttpStatus.NOT_FOUND,
+    description: 'Usuário não encontrado ou não existe',
+  })
   async getFollows(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.usersService.getFollows(id);
+  }
+
+  @Get(':id/follows/posts')
+  @ApiOperation({ summary: 'Listar todos os posts dos usuários que o usuário selecionado segue' })
+  @ApiResponse({
+    type: UserFollowersResponse,
+    status: HttpStatus.OK,
+    description: 'Retornar uma lista de posts',
+  })
+  @ApiResponse({
+    type: BadRequestResponse,
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Informe os parâmetros de forma correta',
+  })
+  @ApiResponse({
+    type: NotFoundResponse,
+    status: HttpStatus.NOT_FOUND,
+    description: 'Usuário não encontrado ou não existe',
+  })
+  async getFollowsPosts(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.usersService.getFollowsPosts(id);
   }
 }
