@@ -5,9 +5,11 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { PhotosEntity } from '../../photos/entities/photos.entity';
 import { UsersEntity } from '../../users/entities/users.entity';
 
 @Entity({ name: 'posts' })
@@ -33,4 +35,7 @@ export class PostsEntity {
 
   @DeleteDateColumn({ name: 'deleted_at' })
   deletedAt: string;
+
+  @OneToMany(() => PhotosEntity, (photo) => photo.post)
+  photos: PhotosEntity[];
 }

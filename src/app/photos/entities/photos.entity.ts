@@ -1,9 +1,23 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { PostsEntity } from '../../posts/entities/posts.entity';
 
 @Entity({ name: 'photos' })
 export class PhotosEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @ManyToOne(() => PostsEntity, (post) => post.photos)
+  @JoinColumn({ name: 'post_id', referencedColumnName: 'id' })
+  post: PostsEntity;
 
   @Column({ name: 'post_id', type: 'uuid' })
   postId: string;

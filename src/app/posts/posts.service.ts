@@ -17,7 +17,9 @@ export class PostsService {
     const posts = this.postsRepository
       .createQueryBuilder('posts')
       .addSelect(['user.username'])
-      .leftJoin('posts.user', 'user');
+      .addSelect(['photos.photoUrl'])
+      .leftJoin('posts.user', 'user')
+      .leftJoin('posts.photos', 'photos');
 
     if (options?.userId) {
       posts.andWhere('posts.userId = :userId', { userId: options.userId });
