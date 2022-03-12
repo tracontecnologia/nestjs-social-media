@@ -196,4 +196,9 @@ export class UsersController {
   async storeFollowers(@Param('id', new ParseUUIDPipe()) id: string, @Body() body: StoreFollowerDto) {
     return this.usersService.storeFollowers(id, body);
   }
+
+  @Get(':id/follows')
+  async getFollows(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.usersService.getFollows(id);
+  }
 }

@@ -72,4 +72,13 @@ export class UsersService {
 
     return await this.usersRepository.save(user);
   }
+
+  async getFollows(followerId: string) {
+    return await this.usersRepository
+      .createQueryBuilder('users')
+      .select(['users.id', 'users.firstName', 'users.lastName', 'users.username'])
+      .leftJoin('users.followers', 'followers')
+      .where('follower_id = :followerId', { followerId })
+      .getMany();
+  }
 }
