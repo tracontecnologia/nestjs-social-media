@@ -18,6 +18,7 @@ async function bootstrap() {
     .setTitle('Social Media API')
     .setDescription('Essa é a API oficila do Social Media')
     .setVersion('0.0.1')
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('swagger', app, document);
@@ -26,6 +27,7 @@ async function bootstrap() {
     .setTitle('User API')
     .setDescription('Essa é a API dos usuários')
     .setVersion('0.0.1')
+    .addBearerAuth()
     .build();
   const userDocument = SwaggerModule.createDocument(app, userConfig, {
     include: [UsersModule],
@@ -36,6 +38,7 @@ async function bootstrap() {
     .setTitle('Post API')
     .setDescription('Essa é a API dos posts')
     .setVersion('0.0.1')
+    .addBearerAuth()
     .build();
   const postDocument = SwaggerModule.createDocument(app, postConfig, {
     include: [PostsModule],

@@ -11,11 +11,13 @@ import {
   Patch,
   Post,
   Put,
+  UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { BadRequestResponse, NotFoundResponse } from '../../shared/swagger.shared';
 import { StorePostDto } from '../posts/dto/store-post.dto';
 import { PostsService } from '../posts/posts.service';
@@ -130,7 +132,27 @@ export class UsersController {
 
   @Post(':id/posts')
   @UseGuards(AuthGuard('jwt'))
+  @UseInterceptors(FilesInterceptor('files', 6, { limits: { fileSize: 5000000 } }))
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Cadastar um novo post para um usuário' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        files: {
+          type: 'array',
+          items: {
+            type: 'string',
+            format: 'binary',
+          },
+        },
+        description: {
+          type: 'string',
+        },
+      },
+    },
+  })
   @ApiResponse({ type: PostResponse, status: HttpStatus.CREATED, description: 'Post do usuário criado com sucesso!' })
   @ApiResponse({
     type: BadRequestResponse,
@@ -142,12 +164,17 @@ export class UsersController {
     status: HttpStatus.NOT_FOUND,
     description: 'Usuário não encontrado ou não existe',
   })
-  async storePost(@Param('id', new ParseUUIDPipe()) id: string, @Body() body: StorePostDto) {
-    return this.postsService.store(id, body);
+  async storePost(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() body: StorePostDto,
+    @UploadedFiles() files: Express.Multer.File[],
+  ) {
+    return this.postsService.store(id, body, files);
   }
 
   @Get(':id/posts')
   @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Listar todos os posts de um usuário' })
   @ApiResponse({
     type: PostResponse,
