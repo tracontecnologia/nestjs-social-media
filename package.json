@@ -22,7 +22,11 @@
     "migrations:create": "typeorm migration:create -n ",
     "premigrations:run": "npm run build",
     "migrations:run": "typeorm migration:run",
-    "migrations:revert": "typeorm migration:revert"
+    "migrations:revert": "typeorm migration:revert",
+    "seeds:create": "typeorm migration:create -d src/database/seeds -n ",
+    "preseeds:run": "npm run build",
+    "seeds:run": "TYPEORM_MIGRATIONS=dist/database/seeds/* TYPEORM_MIGRATIONS_TABLE_NAME=seeds typeorm migration:run",
+    "seeds:revert": "TYPEORM_MIGRATIONS=dist/database/seeds/* TYPEORM_MIGRATIONS_TABLE_NAME=seeds typeorm migration:revert"
   },
   "dependencies": {
     "@nestjs/common": "^7.6.15",
@@ -49,7 +53,7 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@faker-js/faker": "^6.0.0-alpha.7",
+    "@faker-js/faker": "^6.3.1",
     "@nestjs/cli": "^7.6.0",
     "@nestjs/schematics": "^7.3.0",
     "@nestjs/testing": "^7.6.15",
