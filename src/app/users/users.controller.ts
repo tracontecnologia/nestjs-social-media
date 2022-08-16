@@ -132,27 +132,7 @@ export class UsersController {
 
   @Post(':id/posts')
   @UseGuards(AuthGuard('jwt'))
-  @UseInterceptors(FilesInterceptor('files', 6, { limits: { fileSize: 5000000 } }))
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Cadastar um novo post para um usuário' })
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        files: {
-          type: 'array',
-          items: {
-            type: 'string',
-            format: 'binary',
-          },
-        },
-        description: {
-          type: 'string',
-        },
-      },
-    },
-  })
   @ApiResponse({ type: PostResponse, status: HttpStatus.CREATED, description: 'Post do usuário criado com sucesso!' })
   @ApiResponse({
     type: BadRequestResponse,
@@ -164,12 +144,8 @@ export class UsersController {
     status: HttpStatus.NOT_FOUND,
     description: 'Usuário não encontrado ou não existe',
   })
-  async storePost(
-    @Param('id', new ParseUUIDPipe()) id: string,
-    @Body() body: StorePostDto,
-    @UploadedFiles() files: Express.Multer.File[],
-  ) {
-    return this.postsService.store(id, body, files);
+  async storePost(@Param('id', new ParseUUIDPipe()) id: string, @Body() body: StorePostDto) {
+    return this.postsService.store(id, body);
   }
 
   @Get(':id/posts')

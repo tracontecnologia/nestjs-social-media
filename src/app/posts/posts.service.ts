@@ -1,8 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { PhotosEntity } from '../photos/entities/photos.entity';
-import { PhotosService } from '../photos/photos.service';
 import { IndexPostDto } from './dto/index-post.dto';
 import { StorePostDto } from './dto/store-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -13,7 +11,6 @@ export class PostsService {
   constructor(
     @InjectRepository(PostsEntity)
     private readonly postsRepository: Repository<PostsEntity>,
-    private readonly photosService: PhotosService,
   ) {}
 
   async index(options?: IndexPostDto) {
@@ -33,22 +30,12 @@ export class PostsService {
     return await posts.getMany();
   }
 
-  async store(userId: string, data: StorePostDto, files: Express.Multer.File[]) {
-    let post: PostsEntity;
+  async store(userId: string, data: StorePostDto) {
     try {
-      post = await this.postsRepository.save(this.postsRepository.create({ userId, ...data }));
+      return await this.postsRepository.save(this.postsRepository.create({ userId, ...data }));
     } catch (error) {
       throw new BadRequestException(error.message);
     }
-
-    let photos: PhotosEntity[] = [];
-    try {
-      photos = await this.photosService.store(post.id, files);
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
-
-    return { post, photos };
   }
 
   async update(id: string, data: UpdatePostDto) {
