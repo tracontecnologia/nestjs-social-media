@@ -49,6 +49,7 @@ async function bootstrap() {
     .setTitle('Photo API')
     .setDescription('Essa é a API das fotos')
     .setVersion('0.0.1')
+    .addBearerAuth()
     .build();
   const photoDocument = SwaggerModule.createDocument(app, photoConfig, {
     include: [PhotosModule],
