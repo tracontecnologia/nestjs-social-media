@@ -4,8 +4,10 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
   JoinTable,
   ManyToMany,
+  ManyToOne,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -15,6 +17,7 @@ import * as bcrypt from 'bcrypt';
 import { Exclude } from 'class-transformer';
 import { UserProfilesEntity } from './user-profiles.entity';
 import { PostsEntity } from '../../posts/entities/posts.entity';
+import { RolesEntity } from '../../roles/entities/roles.entity';
 
 @Entity({ name: 'users' })
 export class UsersEntity {
@@ -68,6 +71,13 @@ export class UsersEntity {
 
   @Column({ name: 'refresh_token_id' })
   refreshTokenId: string;
+
+  @ManyToOne(() => RolesEntity, (role) => role.users)
+  @JoinColumn({ name: 'role_id', referencedColumnName: 'id' })
+  role: RolesEntity;
+
+  @Column({ name: 'role_id', type: 'varchar', length: '36' })
+  roleId: string;
 
   @BeforeInsert()
   passwordEncrypt() {

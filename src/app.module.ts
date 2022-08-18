@@ -7,6 +7,7 @@ import { UsersModule } from './app/users/users.module';
 import { PostsModule } from './app/posts/posts.module';
 import { PhotosModule } from './app/photos/photos.module';
 import { AuthModule } from './auth/auth.module';
+import { RolesModule } from './app/roles/roles.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { AuthModule } from './auth/auth.module';
     PostsModule,
     PhotosModule,
     AuthModule,
+    RolesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
