@@ -3,27 +3,26 @@ import { UsersEntity } from '../app/users/entities/users.entity';
 import { UsersService } from '../app/users/users.service';
 import { compareSync } from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { IUserJWTPayload } from './interfaces/user-jwt-payload.interface';
-import { IJWTPayload } from './interfaces/jwt-payload.interface';
 import { v4 as uuid } from 'uuid';
 import { IRefreshJWTPayload } from './interfaces/refresh-jwt-payload.interface';
+import { IJWTPayload } from './interfaces/jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
   constructor(private readonly usersService: UsersService, private readonly jwtService: JwtService) {}
 
-  login(user: IUserJWTPayload) {
+  login(jwtPayload: IJWTPayload) {
     return {
-      token: this.generateToken(user),
-      refreshToken: this.generateRefreshToken(user.id),
+      token: this.generateToken(jwtPayload),
+      refreshToken: this.generateRefreshToken(jwtPayload.sub),
     };
   }
 
-  async validateUser(username: string, password: string) {
+  async validateUser(username: string, password: string): Promise<IJWTPayload> {
     let user: UsersEntity;
 
     try {
-      user = await this.usersService.findOneOrFail({ username });
+      user = await this.usersService.findOneOrFail({ username }, { relations: ['role', 'role.permissions'] });
     } catch (error) {
       return null;
     }
@@ -31,7 +30,15 @@ export class AuthService {
     const isPasswordValid = compareSync(password, user.password);
     if (!isPasswordValid) return null;
 
-    return user;
+    return {
+      sub: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      username: user.username,
+      role: user.role.name,
+      permissions: user.role.permissions.map((p) => p.name),
+    };
   }
 
   async refreshToken(refreshToken: string) {
@@ -51,15 +58,24 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
+    const jwtPayload: IJWTPayload = {
+      sub: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      username: user.username,
+      email: user.email,
+      role: user.role.name,
+      permissions: user.role.permissions.map((p) => p.name),
+    };
+
     return {
-      token: this.generateToken(user),
+      token: this.generateToken(jwtPayload),
       refreshToken: this.generateRefreshToken(user.id),
     };
   }
 
-  private generateToken(user: IUserJWTPayload) {
-    const payload: IJWTPayload = { sub: user.id, email: user.email };
-    return this.jwtService.sign(payload);
+  private generateToken(jwtPayload: IJWTPayload) {
+    return this.jwtService.sign(jwtPayload);
   }
 
   private generateRefreshToken(userId: string) {

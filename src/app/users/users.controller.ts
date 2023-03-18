@@ -18,6 +18,8 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Can } from '../../auth/roles/decorators/can.decorator';
+import { RolesGuard } from '../../auth/roles/roles.guard';
 import { BadRequestResponse, NotFoundResponse } from '../../shared/swagger.shared';
 import { StorePostDto } from '../posts/dto/store-post.dto';
 import { PostsService } from '../posts/posts.service';
@@ -113,6 +115,8 @@ export class UsersController {
 
   @Delete(':id')
   @UseGuards(AuthGuard('jwt'))
+  @UseGuards(RolesGuard)
+  @Can('delete_user')
   @ApiOperation({ summary: 'Excluir um usuário' })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'Usuário excluído com sucesso' })
