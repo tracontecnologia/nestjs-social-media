@@ -53,7 +53,7 @@ export class AuthService {
 
     let user: UsersEntity;
     try {
-      user = await this.usersService.findOneOrFail({ refreshTokenId });
+      user = await this.usersService.findOneOrFail({ refreshTokenId }, { relations: ['role', 'role.permissions'] });
     } catch (error) {
       throw new UnauthorizedException();
     }
